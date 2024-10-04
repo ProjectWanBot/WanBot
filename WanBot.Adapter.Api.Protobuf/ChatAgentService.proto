@@ -1,0 +1,49 @@
+syntax = "proto3";
+package wanBot.adapter.api.protobuf;
+import "google/protobuf/empty.proto";
+
+service ChatAgent {
+    rpc GetVersion (google.protobuf.Empty) returns (Version);
+    rpc Verify (google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc StartChatEventStream (stream ChatEvent) returns (google.protobuf.Empty);
+    rpc StartChatCommandStream (google.protobuf.Empty) returns (stream ChatCommand);
+}
+
+message ChatEvent {
+    message EvtReceiveChat {
+        MessageChain chain = 1;
+    }
+    oneof Payload {
+        EvtReceiveChat receiveChat = 1;
+    }
+}
+
+message ChatCommand {
+    message CmdPostChat {
+        MessageChain chain = 1;
+    }
+    oneof Payload {
+        CmdPostChat postChat = 1;
+    }
+}
+
+message MessageChain {
+    message MessageBlock {
+        message MsgText {
+            string plain = 1;
+        }
+        message MsgMention {
+            string member = 1;
+            string nickname = 2;
+        }
+        oneof Content {
+            MsgText text = 1;
+            MsgMention mention = 2;
+        }
+    }
+    repeated MessageBlock Elements = 1;
+}
+
+message Version {
+    string version = 1;
+}
